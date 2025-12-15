@@ -1,0 +1,89 @@
+import core;
+import mem;
+
+// axm %test.inf: %test.Idx %test.inf;
+// axm %test.Idx: %test.Idx -> *;
+// let %test.Nat = %test.Idx %test.inf;
+
+// axm %test.add: {n m: %test.Nat} -> [a: %test.Idx n, b: %test.Idx m] -> %test.Idx (%test.add (n, m));
+
+// lam extern add {n m: %test.Nat} [a: %test.Idx n, b: %test.Idx m]: %test.Idx (%test.add (n, m)) = %test.add (a, b);
+
+axm %test.Void: *;
+
+axm %test.map: {n: Nat} → {TK UK: □} → [f: TK -> UK] → [«n; TK»] → «n; UK»;
+
+axm %test.fold(l): {n: Nat} → {AK VK: □} → [f: [AK, VK] → AK] → [AK, «n; VK»] → AK;
+
+lam %test.liftsq {A T: *} [f: [A, T] → A]: [[*, A], [*, T]] → [*, A]
+    = (λ [[*, acc: A], [*, v: T]]: [*, A] = (%test.Void, f (acc, v)));
+
+lam %test.wrapsq {T: *} {n: Nat} [vals: «n; T»]: «n; [*, T]» = ‹i: n; (%test.Void, vals#i)›;
+
+lam extern sum1 {n: Nat} [vals: «n; Nat»]: Nat
+  = %test.fold.l f_ ((%test.Void, 0), %test.wrapsq vals)
+    where
+        lam f_ [[*, acc: Nat], [*, v: Nat]]: [*, Nat] = (%test.Void, %core.nat.add (acc, v));
+    end;
+
+lam extern sum2 {n: Nat} []
+
+// lam extern %test.memmap
+//     {n: Nat}
+//     {T U: *}
+//     [f: [%mem.M, T] -> [%mem.M, U]]
+//     [mem: %mem.M, «n; T»]
+//   : [%mem.M, «n; U»]
+//   =
+// lam extern %test.memmap
+//     {n: Nat} {T U: *} [f: [%mem.M, T] -> [%mem.M, U]] [mem: %mem.M, «n; T»]: [%mem.M, «n; U»]
+//   = %test.fold load (mem, ())
+//     where
+//         lam load [%mem.M, ]
+
+// axm %test.kfold(l): {A E: □} → {n: Nat} → [f: [A, E] → A] → [A, «n; E»] → A, normalize_fold;
+
+// lam %test.fold.l {A E: *} {n: Nat} [f: [A, E] → A] [acc: A, data: «n; E»]: A
+//     = (%test.kfold.l (%test.liftsq f) ((%test.Void, acc), %test.wrapsq data))#1;
+
+// lam extern sum {n: Nat} [vals: «n; Nat»]
+//     = %test.fold.l (λ [acc v: Nat] = %core.nat.add acc v) (0, vals);
+
+// lam extern test () = (%test.Void, 3);
+
+// lam extern foo {T: □} [a: T]: T = a;
+
+// lam extern blub {T: ★} [a: T]: T = (foo (T, a))#1;
+
+// lam extern blub2 [a: Nat]: Nat = (foo (Bool, a))#1;
+
+
+
+// lam %core.idx.add {n m: Nat} [a: Idx n, b: Idx m] : Idx (%core.nat.add (n, m))
+//     = %core.bitcast (Idx %core.nat.add (n, m)) (%core.nat.add (a_, b_))
+//         where
+//             let a_ = %core.bitcast Nat a;
+//             let b_ = %core.bitcast Nat b;
+//         end;
+
+// lam %core.idx.addn {n: Nat} [a: Idx n, m: Nat] : Idx (%core.nat.add (n, m))
+//     = %core.bitcast (Idx %core.nat.add (n, m)) (%core.nat.add (a_, m))
+//         where
+//             let a_ = %core.bitcast Nat a;
+//         end;
+
+// lam load_all
+//     {n: Nat}
+//     {Ts: <<n; *>>}
+//     [mem: %mem.M, ptrs: <<i: n; %mem.Ptr0 Ts#i>>]
+//         : [%mem.M, <<i: n; Ts#i>>]
+//         =
+//             where
+//                 let n_ = %core.nat.sub (n, 1);
+//                 let (f, fT) = (ptrs#0, Ts#0);
+//                 let r = (<i: n_; ptrs#(%core.idx.addn (i, 1))>);
+//                 let rTs = (<i: n_; Ts#(%core.idx.addn (i, 1))>);
+//                 let (mem_, vals) = load_all (mem, ptrs)
+//             end;
+
+// axm %test.blub: ex_type;
